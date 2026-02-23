@@ -7,7 +7,7 @@ import html as html_lib
 # ─────────────────────────────────────────────────────────────
 # KEYS — paste yours here
 # ─────────────────────────────────────────────────────────────
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 GEMINI_API_KEY     = "AIzaSyDCCFAJJkXOfE0u8f3HtzifoBtwKRvljHA"
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -859,3 +859,4 @@ elif st.session_state.page == "notes":
                 reply = chat_with_tutor([], nq, st.session_state.level or "Beginner",
                                         st.session_state.subject, st.session_state.notes_context)
             st.markdown(f'<div class="ai-box">{reply}</div>', unsafe_allow_html=True)
+                    
