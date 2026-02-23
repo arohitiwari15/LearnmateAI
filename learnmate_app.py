@@ -6,9 +6,8 @@ import re
 # ─────────────────────────────────────────────────────────────
 # KEYS — paste yours here
 # ─────────────────────────────────────────────────────────────
-OPENROUTER_API_KEY = "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"
-GEMINI_API_KEY     = "AIzaSyDCCFAJJkXOfE0u8f3HtzifoBtwKRvljHA"   # free at aistudio.google.com
-
+OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
+GEMINI_API_KEY     = st.secrets["GEMINI_API_KEY"]
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 GEMINI_URL     = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
 LLAMA_MODEL    = "meta-llama/llama-3.1-8b-instruct"
