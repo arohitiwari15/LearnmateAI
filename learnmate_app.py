@@ -2,12 +2,14 @@ import streamlit as st
 import requests
 import json
 import re
+import html as html_lib
 
 # ─────────────────────────────────────────────────────────────
 # KEYS — paste yours here
 # ─────────────────────────────────────────────────────────────
-OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
-GEMINI_API_KEY     = st.secrets["GEMINI_API_KEY"]
+OPENROUTER_API_KEY = "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"
+GEMINI_API_KEY     = "YOUR_GEMINI_API_KEY"   # free at aistudio.google.com
+
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 GEMINI_URL     = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
 LLAMA_MODEL    = "meta-llama/llama-3.1-8b-instruct"
@@ -513,7 +515,7 @@ if st.session_state.page == "home":
     st.markdown('<div class="sec">Quick Explain</div>', unsafe_allow_html=True)
     qc1, qc2 = st.columns([5, 1])
     with qc1:
-        qt = st.text_input("", placeholder=f"Type any topic in {st.session_state.subject}…  e.g. recursion, photosynthesis, supply & demand",
+        qt = st.text_input("Quick explain topic", placeholder=f"Type any topic in {st.session_state.subject}…  e.g. recursion, photosynthesis, supply & demand",
                            label_visibility="collapsed", key="quick_t")
     with qc2:
         qbtn = st.button("Explain 🔮", key="quick_btn", use_container_width=True)
@@ -650,13 +652,15 @@ elif st.session_state.page == "quiz":
             bc = "#166534" if correct else "#7f1d1d"
             tc = "#6ee7b7" if correct else "#fca5a5"
             icon = "✅" if correct else "❌"
-            exp = q.get("explanation", "")
-            correct_ans_text = opts.get(q["answer"], q["answer"])
-            user_ans_text = opts.get(ua, ua or "Not answered")
+            exp = html_lib.escape(q.get("explanation", ""))
+            correct_ans_text = html_lib.escape(opts.get(q["answer"], q["answer"]))
+            user_ans_text    = html_lib.escape(opts.get(ua, ua or "Not answered"))
+            q_text           = html_lib.escape(q["question"])
+            q_topic          = html_lib.escape(q.get("topic", ""))
 
             st.markdown(f"""<div style="background:{bg};border:1px solid {bc};border-radius:10px;padding:0.9rem 1.2rem;margin-bottom:0.5rem">
-            <div style="font-size:0.65rem;color:#4a4862;margin-bottom:0.3rem">Q{i+1} · {q.get("topic","")}</div>
-            <div style="font-size:0.88rem;color:#d4d0f0;margin-bottom:0.4rem">{q["question"]}</div>
+            <div style="font-size:0.65rem;color:#4a4862;margin-bottom:0.3rem">Q{i+1} · {q_topic}</div>
+            <div style="font-size:0.88rem;color:#d4d0f0;margin-bottom:0.4rem">{q_text}</div>
             <div style="font-size:0.82rem;color:{tc}">{icon} Your answer: {user_ans_text}</div>
             {"" if correct else f'<div style="font-size:0.82rem;color:#6ee7b7;margin-top:0.15rem">✔ Correct: {correct_ans_text}</div>'}
             {f'<div style="font-size:0.78rem;color:#5a5870;margin-top:0.4rem;font-style:italic">💡 {exp}</div>' if exp else ""}
@@ -787,7 +791,7 @@ elif st.session_state.page == "notes":
 
     with t1:
         st.markdown('<div class="sec">Paste your notes</div>', unsafe_allow_html=True)
-        pasted = st.text_area("", placeholder="Paste your class notes, textbook text, any study material…",
+        pasted = st.text_area("Paste notes", placeholder="Paste your class notes, textbook text, any study material…",
                               height=240, label_visibility="collapsed", key="paste_area")
         if st.button("✨  Process Notes", key="proc_paste") and pasted.strip():
             with st.spinner("Reading your notes…"):
@@ -800,7 +804,7 @@ elif st.session_state.page == "notes":
 
     with t2:
         st.markdown('<div class="sec">Upload a plain text file</div>', unsafe_allow_html=True)
-        uploaded = st.file_uploader("", type=["txt", "md"], label_visibility="collapsed", key="file_up")
+        uploaded = st.file_uploader("Upload file", type=["txt", "md"], label_visibility="collapsed", key="file_up")
         if uploaded:
             content = uploaded.read().decode("utf-8", errors="ignore")
             st.markdown(f'<div style="font-size:0.78rem;color:#4a4862;margin-bottom:0.5rem">📄 {uploaded.name} — {len(content):,} characters</div>', unsafe_allow_html=True)
@@ -837,7 +841,7 @@ elif st.session_state.page == "notes":
         st.markdown('<div class="sec">Ask something about your notes</div>', unsafe_allow_html=True)
         nq1, nq2 = st.columns([5, 1])
         with nq1:
-            nq = st.text_input("", placeholder="e.g. What are the key points? What should I memorise?",
+            nq = st.text_input("Ask about notes", placeholder="e.g. What are the key points? What should I memorise?",
                                label_visibility="collapsed", key="n_ask")
         with nq2:
             nask = st.button("Ask →", key="n_ask_btn", use_container_width=True)
