@@ -8,7 +8,7 @@ import html as html_lib
 # KEYS — paste yours here
 # ─────────────────────────────────────────────────────────────
 OPENROUTER_API_KEY = "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"
-GEMINI_API_KEY     = "YOUR_GEMINI_API_KEY"   # free at aistudio.google.com
+GEMINI_API_KEY     = "AIzaSyDCCFAJJkXOfE0u8f3HtzifoBtwKRvljHA"
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 GEMINI_URL     = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
@@ -44,6 +44,9 @@ def call_llama(messages: list, max_tokens: int = 800) -> str:
     try:
         r = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=40)
         data = r.json()
+        # Show full response if unexpected
+        if "choices" not in data:
+            return f"⚠️ Unexpected API response: {json.dumps(data)}"
         return data["choices"][0]["message"]["content"]
     except Exception as e:
         return f"⚠️ API Error: {str(e)}"
@@ -64,12 +67,18 @@ Return ONLY valid JSON — no explanation, no markdown, no code fences. Just raw
   }}
 ]"""
     response = call_llama([{"role": "user", "content": prompt}], max_tokens=1400)
+    # If API error, surface it
+    if response.startswith("⚠️"):
+        st.error(response)
+        return []
     try:
         json_match = re.search(r'\[[\s\S]*\]', response)
         if json_match:
             return json.loads(json_match.group())[:5]
-    except:
-        pass
+        else:
+            st.error(f"Could not parse quiz JSON. Raw response:\n\n{response[:500]}")
+    except Exception as e:
+        st.error(f"JSON parse error: {e}\n\nRaw response:\n{response[:500]}")
     return []
 
 
